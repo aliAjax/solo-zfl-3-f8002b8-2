@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Armchair, Info } from 'lucide-react';
-import { useBenchStore } from '@/store/useBenchStore';
+import { MapPin, Armchair, Info, Scale, Check } from 'lucide-react';
+import { useBenchStore, MAX_COMPARE } from '@/store/useBenchStore';
 import { calculateComfortScore, getComfortColor } from '@/utils/comfort';
 import type { Bench } from '@/types';
 
 export default function MapPage() {
-  const { benches, initialize, initialized } = useBenchStore();
+  const { benches, compareIds, toggleCompare, initialize, initialized } = useBenchStore();
   const navigate = useNavigate();
   const [hoveredBench, setHoveredBench] = useState<Bench | null>(null);
 
@@ -61,14 +61,16 @@ export default function MapPage() {
             const position = getPositionStyle(bench);
             const comfortScore = calculateComfortScore(bench);
             const colorClass = getComfortColor(comfortScore);
-            
+            const inCompare = compareIds.includes(bench.id);
+            const compareFull = !inCompare && compareIds.length >= MAX_COMPARE;
+
             return (
-              <button
+              <div
                 key={bench.id}
                 onClick={() => navigate(`/bench/${bench.id}`)}
                 onMouseEnter={() => setHoveredBench(bench)}
                 onMouseLeave={() => setHoveredBench(null)}
-                className="absolute -translate-x-1/2 -translate-y-full group"
+                className="absolute -translate-x-1/2 -translate-y-full group cursor-pointer"
                 style={position}
               >
                 <div className={`relative ${
@@ -81,25 +83,57 @@ export default function MapPage() {
                   <div className="absolute top-1 left-1/2 -translate-x-1/2">
                     <Armchair className="w-3 h-3 text-white" />
                   </div>
+                  {inCompare && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-moss-green flex items-center justify-center shadow-md">
+                      <Check className="w-2.5 h-2.5 text-white" />
+                    </div>
+                  )}
                 </div>
 
                 {hoveredBench?.id === bench.id && (
-                  <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 translate-y-full w-48 paper-texture rounded-lg shadow-paper-hover p-3 z-20 pointer-events-none">
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute left-1/2 -translate-x-1/2 -bottom-2 translate-y-full w-48 paper-texture rounded-lg shadow-paper-hover p-3 z-20 cursor-default"
+                  >
                     <h4 className="font-serif font-medium text-deep-brown text-sm mb-1 line-clamp-1">
                       {bench.name}
                     </h4>
                     <p className="text-xs text-ink-light line-clamp-1 mb-2">
                       {bench.location}
                     </p>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                       <span className="text-xs text-ink-light">舒适度</span>
                       <span className={`text-sm font-medium ${colorClass}`}>
                         {comfortScore}
                       </span>
                     </div>
+                    <button
+                      onClick={() => toggleCompare(bench.id)}
+                      disabled={compareFull}
+                      title={compareFull ? `最多同时对比 ${MAX_COMPARE} 张长椅` : undefined}
+                      className={`w-full flex items-center justify-center gap-1 px-2 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        inCompare
+                          ? 'bg-moss-green/10 text-moss-green hover:bg-moss-green/20'
+                          : compareFull
+                            ? 'bg-deep-brown/5 text-ink-light/40 cursor-not-allowed'
+                            : 'bg-moss-green text-white hover:bg-moss-light'
+                      }`}
+                    >
+                      {inCompare ? (
+                        <>
+                          <Check className="w-3 h-3" />
+                          移出对比
+                        </>
+                      ) : (
+                        <>
+                          <Scale className="w-3 h-3" />
+                          加入对比
+                        </>
+                      )}
+                    </button>
                   </div>
                 )}
-              </button>
+              </div>
             );
           })}
 

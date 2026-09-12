@@ -1,6 +1,7 @@
 import type { Bench } from '@/types';
 
 const STORAGE_KEY = 'bench-archive-data';
+const COMPARE_STORAGE_KEY = 'bench-archive-compare';
 
 export function loadBenches(): Bench[] {
   try {
@@ -27,5 +28,28 @@ export function clearBenches(): void {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
     console.error('Failed to clear benches from localStorage:', error);
+  }
+}
+
+export function loadCompareIds(): string[] {
+  try {
+    const data = localStorage.getItem(COMPARE_STORAGE_KEY);
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((id): id is string => typeof id === 'string');
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load compare ids from localStorage:', error);
+  }
+  return [];
+}
+
+export function saveCompareIds(ids: string[]): void {
+  try {
+    localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(ids));
+  } catch (error) {
+    console.error('Failed to save compare ids to localStorage:', error);
   }
 }

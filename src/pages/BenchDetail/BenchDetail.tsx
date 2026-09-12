@@ -14,8 +14,10 @@ import {
   Sunset,
   Moon,
   CloudSun,
+  Scale,
+  Check,
 } from 'lucide-react';
-import { useBenchStore } from '@/store/useBenchStore';
+import { useBenchStore, MAX_COMPARE } from '@/store/useBenchStore';
 import {
   MATERIAL_LABELS,
   ORIENTATION_LABELS,
@@ -31,7 +33,7 @@ import { calculateComfortScore, getComfortLevel, getComfortColor } from '@/utils
 export default function BenchDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getBenchById, deleteBench, initialize, initialized } = useBenchStore();
+  const { getBenchById, deleteBench, initialize, initialized, compareIds, toggleCompare } = useBenchStore();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
@@ -81,6 +83,9 @@ export default function BenchDetail() {
       navigate('/');
     }
   };
+
+  const inCompare = compareIds.includes(bench.id);
+  const compareFull = !inCompare && compareIds.length >= MAX_COMPARE;
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -194,6 +199,21 @@ export default function BenchDetail() {
 
                 <div className="flex-1" />
 
+                <button
+                  onClick={() => toggleCompare(bench.id)}
+                  disabled={compareFull}
+                  title={compareFull ? `最多同时对比 ${MAX_COMPARE} 张长椅` : undefined}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    inCompare
+                      ? 'text-moss-green bg-moss-green/10 hover:bg-moss-green/20'
+                      : compareFull
+                        ? 'text-ink-light/40 cursor-not-allowed'
+                        : 'text-ink-light hover:bg-deep-brown/5 hover:text-deep-brown'
+                  }`}
+                >
+                  {inCompare ? <Check className="w-4 h-4" /> : <Scale className="w-4 h-4" />}
+                  {inCompare ? '移出对比' : '加入对比'}
+                </button>
                 <button
                   onClick={() => navigate(`/edit/${bench.id}`)}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-moss-green hover:bg-moss-green/10 rounded-lg transition-colors"
