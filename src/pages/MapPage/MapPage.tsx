@@ -69,6 +69,7 @@ export default function MapPage() {
                 onClick={() => navigate(`/bench/${bench.id}`)}
                 onMouseEnter={() => setHoveredBench(bench)}
                 onMouseLeave={() => setHoveredBench(null)}
+                aria-label={`查看${bench.name}详情`}
                 className="absolute -translate-x-1/2 -translate-y-full group"
                 style={position}
               >

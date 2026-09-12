@@ -38,6 +38,7 @@ export default function CompareTray() {
               <button
                 onClick={() => removeFromCompare(bench.id)}
                 title="移出对比"
+                aria-label={`将${bench.name}移出对比`}
                 className="w-4 h-4 rounded-full flex items-center justify-center text-ink-light/60 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
               >
                 <X className="w-3 h-3" />
@@ -50,6 +51,7 @@ export default function CompareTray() {
           <button
             onClick={clearCompare}
             title="清空对比栏"
+            aria-label="清空对比栏"
             className="flex items-center gap-1 px-2 py-1.5 text-xs text-ink-light hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
