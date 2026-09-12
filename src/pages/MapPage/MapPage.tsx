@@ -144,7 +144,7 @@ export default function MapPage() {
       </div>
 
       {benches.length > 0 && (
-        <div className="mt-4 paper-texture rounded-xl shadow-paper p-4">
+        <div className="mt-4 paper-texture rounded-xl shadow-paper p-4" data-testid="compare-picker">
           <div className="flex items-center justify-between gap-2 mb-3">
             <div className="flex items-center gap-1.5">
               <Scale className="w-4 h-4 text-moss-green" />

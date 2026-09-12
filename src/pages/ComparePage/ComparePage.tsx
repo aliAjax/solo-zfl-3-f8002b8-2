@@ -143,10 +143,15 @@ export default function ComparePage() {
             <div className="grid border-b border-deep-brown/10" style={{ gridTemplateColumns }}>
               <div className="p-4" />
               {compareBenches.map((bench) => (
-                <div key={bench.id} className="p-4 border-l border-deep-brown/5 relative">
+                <div
+                  key={bench.id}
+                  className="p-4 border-l border-deep-brown/5 relative"
+                  data-testid={`compare-col-${bench.id}`}
+                >
                   <button
                     onClick={() => removeFromCompare(bench.id)}
                     title="移出对比"
+                    aria-label={`将${bench.name}移出对比`}
                     className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-ink-light/60 hover:text-red-500 hover:bg-red-50 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -181,6 +186,7 @@ export default function ComparePage() {
                   <div
                     key={bench.id}
                     className="p-3 border-l border-deep-brown/5 text-sm font-medium text-deep-brown flex items-center"
+                    data-testid={`compare-cell-${row.label}-${bench.id}`}
                   >
                     {row.render(bench)}
                   </div>
@@ -204,6 +210,7 @@ export default function ComparePage() {
                   <div
                     key={bench.id}
                     className={`p-3 border-l border-deep-brown/5 ${isBest ? 'bg-moss-green/10' : ''}`}
+                    data-testid={`compare-cell-舒适度-${bench.id}`}
                   >
                     <div className="flex items-baseline gap-2">
                       <span className={`text-lg font-bold font-serif ${getComfortColor(score)}`}>
@@ -241,6 +248,7 @@ export default function ComparePage() {
                     className={`p-3 border-l border-deep-brown/5 flex items-center gap-2 ${
                       isBest ? 'bg-moss-green/10' : ''
                     }`}
+                    data-testid={`compare-cell-评分-${bench.id}`}
                   >
                     <Rating value={bench.rating} readOnly size="sm" />
                     <span className="text-sm font-medium text-deep-brown">
