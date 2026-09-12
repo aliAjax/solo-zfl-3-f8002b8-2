@@ -19,10 +19,10 @@ export default function MapPage() {
   const getPositionStyle = (bench: Bench) => {
     const latRange = { min: 31.22, max: 31.25 };
     const lngRange = { min: 121.46, max: 121.495 };
-    
+
     const normalizedLat = (bench.lat - latRange.min) / (latRange.max - latRange.min);
     const normalizedLng = (bench.lng - lngRange.min) / (lngRange.max - lngRange.min);
-    
+
     return {
       left: `${10 + normalizedLng * 80}%`,
       top: `${85 - normalizedLat * 70}%`,
@@ -62,15 +62,14 @@ export default function MapPage() {
             const comfortScore = calculateComfortScore(bench);
             const colorClass = getComfortColor(comfortScore);
             const inCompare = compareIds.includes(bench.id);
-            const compareFull = !inCompare && compareIds.length >= MAX_COMPARE;
 
             return (
-              <div
+              <button
                 key={bench.id}
                 onClick={() => navigate(`/bench/${bench.id}`)}
                 onMouseEnter={() => setHoveredBench(bench)}
                 onMouseLeave={() => setHoveredBench(null)}
-                className="absolute -translate-x-1/2 -translate-y-full group cursor-pointer"
+                className="absolute -translate-x-1/2 -translate-y-full group"
                 style={position}
               >
                 <div className={`relative ${
@@ -91,49 +90,22 @@ export default function MapPage() {
                 </div>
 
                 {hoveredBench?.id === bench.id && (
-                  <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="absolute left-1/2 -translate-x-1/2 -bottom-2 translate-y-full w-48 paper-texture rounded-lg shadow-paper-hover p-3 z-20 cursor-default"
-                  >
+                  <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 translate-y-full w-48 paper-texture rounded-lg shadow-paper-hover p-3 z-20 pointer-events-none">
                     <h4 className="font-serif font-medium text-deep-brown text-sm mb-1 line-clamp-1">
                       {bench.name}
                     </h4>
                     <p className="text-xs text-ink-light line-clamp-1 mb-2">
                       {bench.location}
                     </p>
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between">
                       <span className="text-xs text-ink-light">舒适度</span>
                       <span className={`text-sm font-medium ${colorClass}`}>
                         {comfortScore}
                       </span>
                     </div>
-                    <button
-                      onClick={() => toggleCompare(bench.id)}
-                      disabled={compareFull}
-                      title={compareFull ? `最多同时对比 ${MAX_COMPARE} 张长椅` : undefined}
-                      className={`w-full flex items-center justify-center gap-1 px-2 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                        inCompare
-                          ? 'bg-moss-green/10 text-moss-green hover:bg-moss-green/20'
-                          : compareFull
-                            ? 'bg-deep-brown/5 text-ink-light/40 cursor-not-allowed'
-                            : 'bg-moss-green text-white hover:bg-moss-light'
-                      }`}
-                    >
-                      {inCompare ? (
-                        <>
-                          <Check className="w-3 h-3" />
-                          移出对比
-                        </>
-                      ) : (
-                        <>
-                          <Scale className="w-3 h-3" />
-                          加入对比
-                        </>
-                      )}
-                    </button>
                   </div>
                 )}
-              </div>
+              </button>
             );
           })}
 
@@ -169,6 +141,70 @@ export default function MapPage() {
           共 <span className="font-medium text-deep-brown">{benches.length}</span> 张长椅
         </p>
       </div>
+
+      {benches.length > 0 && (
+        <div className="mt-4 paper-texture rounded-xl shadow-paper p-4">
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-1.5">
+              <Scale className="w-4 h-4 text-moss-green" />
+              <h3 className="font-serif text-sm font-semibold text-deep-brown">
+                选择长椅进行对比
+              </h3>
+            </div>
+            <span className="text-xs text-ink-light flex-shrink-0">
+              已选 {compareIds.length}/{MAX_COMPARE}，选 2-3 张
+            </span>
+          </div>
+
+          <ul className="max-h-60 overflow-y-auto space-y-1 pr-1">
+            {benches.map((bench) => {
+              const comfortScore = calculateComfortScore(bench);
+              const colorClass = getComfortColor(comfortScore);
+              const inCompare = compareIds.includes(bench.id);
+              const compareFull = !inCompare && compareIds.length >= MAX_COMPARE;
+
+              return (
+                <li key={bench.id} className="flex items-center gap-2">
+                  <button
+                    onClick={() => navigate(`/bench/${bench.id}`)}
+                    title={`查看${bench.name}详情`}
+                    className="flex-1 min-w-0 flex items-baseline gap-2 px-2 py-2 rounded-lg text-left hover:bg-deep-brown/[0.04] transition-colors"
+                  >
+                    <span className="text-sm font-medium text-deep-brown truncate">
+                      {bench.name}
+                    </span>
+                    <span className="text-xs text-ink-light truncate hidden sm:inline">
+                      {bench.location}
+                    </span>
+                  </button>
+
+                  <span className={`text-xs font-medium flex-shrink-0 ${colorClass}`}>
+                    {comfortScore}
+                  </span>
+
+                  <button
+                    onClick={() => toggleCompare(bench.id)}
+                    disabled={compareFull}
+                    aria-pressed={inCompare}
+                    aria-label={inCompare ? `将${bench.name}移出对比` : `将${bench.name}加入对比`}
+                    title={compareFull ? `最多同时对比 ${MAX_COMPARE} 张长椅` : undefined}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors flex-shrink-0 ${
+                      inCompare
+                        ? 'bg-moss-green text-white shadow-sm'
+                        : compareFull
+                          ? 'bg-deep-brown/5 text-ink-light/40 cursor-not-allowed'
+                          : 'bg-moss-green/10 text-moss-green hover:bg-moss-green hover:text-white'
+                    }`}
+                  >
+                    {inCompare ? <Check className="w-3.5 h-3.5" /> : <Scale className="w-3.5 h-3.5" />}
+                    {inCompare ? '已加入' : '对比'}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
